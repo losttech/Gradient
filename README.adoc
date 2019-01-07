@@ -1,5 +1,6 @@
 :toc: macro
 :toclevels: 3
+:language: csharp
 
 # Gradient
 This repository serves as a public issue tracker and documentation for Gradient, full TensorFlow binding for .NET
@@ -20,7 +21,7 @@ Before installing Gradient, you should ensure, that you have TensorFlow installe
 .. Find `python.exe` in the installation directory (VS installs it C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe)
 .. Open command line to the directory, containing `python.exe`
 .. Execute `.\python.exe -m pip install tensorflow==1.10.\*` or `.\python.exe -m pip install tensorflow-gpu==1.10.*` if you want GPU acceleration via CUDA
-.. Launch `python.exe`, and try running `import tensorflow`. It should succeed.
+.. Launch `python.exe`, and try running [source,python]`import tensorflow`. It should succeed.
 
 ### Add Nuget package to your project
 
@@ -46,13 +47,18 @@ See the example project file https://github.com/losttech/Gradient-Samples/blob/m
 In most cases, you will need to add `using tensorflow;` at the beginning of your file. In many cases you will also need `using Gradient;` and `using numpy;`.
 
 [source,csharp]
-
-[source,csharp]
 ----
 using numpy;
 using tensorflow;
 using Gradient;
 ----
+
+### Logging
+https://www.tensorflow.org/api_docs/python/tf/logging[TensorFlow logging] is separate from Gradient logging. This section discusses the later.
+
+To enable Gradient logs, set appropriate properties of `GradientLog` static class, e.g.:
+[source,csharp]
+GradientLog.OutputWriter = Console.Out;
 
 ### Old style TF
 Prior to the recent changes, the main way to use TensorFlow was to contstruct a computation graph, and then run it in a session. Most of the existing examples will use this mode.
