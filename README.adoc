@@ -1,13 +1,11 @@
+:toc: macro
+:toclevels: 3
+
 # Gradient
 This repository serves as a public issue tracker and documentation for Gradient, full TensorFlow binding for .NET
 
 You can find samples at https://github.com/losttech/Gradient-Samples
 
-:toc: macro
-:toc-title:
-:toclevels: 3
-
-# Table of Contents
 toc::[]
 
 # Getting started
