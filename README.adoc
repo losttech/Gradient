@@ -1,4 +1,5 @@
 :toc: macro
+:toc-title: 
 :toclevels: 3
 :language: csharp
 
@@ -7,6 +8,10 @@ This repository serves as a public issue tracker and documentation for Gradient,
 
 You can find samples at https://github.com/losttech/Gradient-Samples
 
+[quote, Gradient-based Char-RNN trained on Shakespeare]
+He shall speak not reverbering injurance.
+
+# Contents
 toc::[]
 
 # Getting started
