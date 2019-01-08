@@ -6,6 +6,8 @@
 # Gradient
 This repository serves as a public issue tracker and documentation for Gradient, full TensorFlow binding for .NET
 
+Gradient is a fully-fledged, mostly typed binding to TensorFlow for .NET
+
 You can find samples at https://github.com/losttech/Gradient-Samples
 
 [quote, Gradient-based Char-RNN trained on Shakespeare]
