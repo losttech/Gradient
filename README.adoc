@@ -27,8 +27,8 @@ Before installing Gradient, you should ensure, that you have TensorFlow installe
 . Install TensorFlow 1.10 using pip:
 .. Find `python.exe` in the installation directory (VS installs to: C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe)
 .. Open command line to the directory, containing `python.exe`
-.. Execute `.\python.exe -m pip install tensorflow==1.10.\*` or `.\python.exe -m pip install tensorflow-gpu==1.10.*` if you want GPU acceleration via CUDA
-.. Launch `python.exe`, and try running [source,python]`import tensorflow`. It should succeed.
+.. Execute `.\python.exe -m pip install "tensorflow==1.10.\*"` or `.\python.exe -m pip install "tensorflow-gpu==1.10.*"` if you want GPU acceleration via CUDA
+. Check the installation by launching `python.exe`, and running [source,python]`import tensorflow`. It should succeed.
 
 ### Add Nuget package to your project
 
