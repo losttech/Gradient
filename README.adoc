@@ -25,7 +25,7 @@ Before installing Gradient, you should ensure, that you have TensorFlow installe
 
 . Install Python 3.6 64-bit. If you have Visual Studio 2017+, it is possible to install it as a component. Otherwise, get one from https://www.python.org/downloads/
 . Install TensorFlow 1.10 using pip:
-.. Find `python.exe` in the installation directory (VS installs it C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe)
+.. Find `python.exe` in the installation directory (VS installs to: C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe)
 .. Open command line to the directory, containing `python.exe`
 .. Execute `.\python.exe -m pip install tensorflow==1.10.\*` or `.\python.exe -m pip install tensorflow-gpu==1.10.*` if you want GPU acceleration via CUDA
 .. Launch `python.exe`, and try running [source,python]`import tensorflow`. It should succeed.
@@ -117,3 +117,10 @@ The full code for this example is available at our https://github.com/losttech/G
 
 # Porting Python code
 TBD
+
+# Tips and Tricks
+## C# 8
+Gradient supports the neat indexing feature of C# 8: if you are using Visual Studio 2019 Preview+ or the .NET Core SDK 3 Preview+,
+you can set appropriate language level like this in the project file: `<LangVersion>8.0</LangVersion>`
+
+Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`, which means "take a range from element at index 3, that excludes the last 4 elements".
