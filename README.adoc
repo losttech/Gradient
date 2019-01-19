@@ -184,12 +184,46 @@ Same applies to properties. For each `SomeType property{get;set;}` there's a `dy
 Every class with constructors will have an untyped static factory method, named `NewDyn`,
 which allows you to call class constructor similar to untyped function overloads in the previos paragraph.
 
+Please, report to this issue tracker, if you have to call dynamic overloads a lot to get your model running.
+We will try to fix that in the next version.
+
+In some cases even that is not enough. If you need to call a method or access a property of an instance of some class,
+and that method/property is not exposed by Gradient, convert the instance to `dynamic`, and try to call it that way.
+See https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/using-type-dynamic
+
+## Passing functions
+Many TensorFlow (and hence Gradient) APIs accept functions as parameters.
+If the parameter type is known to be a function, Gradient will show it as `Gradient.PythonFunctionContainer`.
+
+There are two ways to get an instance of it: pass Gradient functions back, or pass .NET function.
+
+### Passing TensorFlow functions back to TensorFlow
+TL;DR; suffix your function with `_fn`.
+
+Most NN layers expect an `activation` argument, which specifies the neuron activation function.
+TensorFlow defines many activation functions one would want to use in both modern and old-style APIs.
+The "original" one is called https://en.wikipedia.org/wiki/Sigmoid_function[sigmoid] as is availabe as `tf.sigmoid`.
+Modern networks often use some variant of https://en.wikipedia.org/wiki/Rectifier_(neural_networks)[ReLU] (`tf.nn.relu`).
+You can call both directly from Gradient like this: `tf.sigmoid(tensor)`, but in most cases you need to pass them
+to `activation` parameter as `PythonFunctionContainer`.
+
+To do that you can simply get a pre-wrapped instance by adding `_fn` suffix to the function name.
+
+For example: `tf.layer.dense(activation: *tf.sigmoid_fn*)`.
+
+### Passing C# functions to Gradient
+To get an instace of `PythonFunctionContainer` from a C# function, use static method `PythonFunctionContainer.Of<T1, ..., TResult>(func or lambda)`.
+You will have to specify function argument types in place of `<T1, ..., TResult>`.
+
+There are currently <<callback_restrictions, some restrictions>> on what can be done in .NET functions passed to Gradient.
+
+
 ## Python `with` blocks, C#'s `using`
 TL;DR; replace `with new Session(...) as sess: sess.do_stuff()`
-with `new Session(...).UseSelf(sess => sess.do_stuff())`
+-> `new Session(...).UseSelf(sess => sess.do_stuff())`
 
 TensorFlow API, being built on Python, use special *enter* and *exit* methods for the same purpose
-.NET has `IDisposable`. Problem is that in general they do not map directly to each other.
+.NET has `IDisposable`. Problem is: in general they do not map directly to each other.
 For that reason every Gradient class, that declares those special methods in TensorFlow,
 also exposes `.Use` and `.UseSelf` methods. In most cases it is easiest to use `.UseSelf(self => do_something(self))`
 as shown in the sample above. However, there might be rare special cases, when `.Use(context => do_something(context))`
@@ -198,11 +232,44 @@ while `obj.Use` might actually generate a new object of potentially completely d
 
 Think of `.Use` and `.UseSelf` as Gradient's best attempt at reproducing `using(var session = new Session(...)) {}` statement.
 
-A full example how to use `.UseSelf` can be found in https://github.com/losttech/Gradient-Samples/blob/master/BasicMath/BasicMathProgram.cs[samples]
+A full example on how to use `.UseSelf` can be found in https://github.com/losttech/Gradient-Samples/blob/master/BasicMath/BasicMathProgram.cs[samples]
 
 
 ## Exceptions
 This feature is still in development.
+
+## NumPy
+Since most TensorFlow samples use NumPy, Gradient includes a limited subset under `numpy` namespace.
+
+## Recommendations
+* import both `tensorflow` and `numpy` namespaces:
+[source,csharp]
+----
+using tensorflow;
+using numpy;
+
+tf.placeholder(...);
+np.array(...);
+----
+* if you extensively use some API set under `tf.`, use `using static tf.API_HERE;`
+[source,csharp]
+----
+using static tf.keras;
+...
+var model = models.load_model(...);
+new Dense(kernel_regularizer: regularizers.l2(...));
+----
+* many Gradient functions return `dynamic`. Whenever possible, immediately cast it to the concrete type.
+It will help to maintain the code. Concrete type is always known at runtime
+and can be seen in the debugger, or accessed via `object.GetType()` method.
+Most methods in `tf.` actually return `Tensor`.
+[source,csharp]
+----
+Tensor hidden = tf.layers.dense(input, hiddenSize, activation: tf.sigmoid_fn);
+----
+
+* avoid directly using classes in `Gradient`, `SharPy.Runtime`, and `Python.Runtime`.
+They are Gradient's implementation details, which might be changed in the future versions.
 
 # Limitations of the current tech preview
 __This section may be outdated__
@@ -211,6 +278,7 @@ __This section may be outdated__
 
 __While nothing will stop you from inheriting Gradient classes in .NET, any new or overriden members will not be visible to TensorFlow. You may implement corresponding *interfaces* in .NET, but don't inherit anything from any *classes* in `Gradient`, `tensorflow`, or `numpy` namespaces.__
 
+[#callback_restrictions]
 ### Any callbacks written in .NET are unable to call `Gradient` code.
 
 Will NOT work:
