@@ -115,38 +115,112 @@ Note, that `Session.run` also takes a sequence of `Tensor`-like objects.
 
 The full code for this example is available at our https://github.com/losttech/Gradient-Samples/tree/master/BasicMath[samples repository]
 
-# Porting Python code to Gradient
+# Porting Python code to Gradient + C#
 In most cases converting Python code, that uses TensorFlow, should be as easy as using C# syntax instead of Python one:
 
- * add `new` to class constructor calls: `Class()` to `new Class()`.
+ * add `new` to class constructor calls: `Class()` -> `new Class()`.
 
 __Its easy to spot class construction vs simple function calls in Python:
 by convention function names there start with a lower case letter like `min`,
 while in class names the first letter is capitalized: `Session` __
 
  * to pass named paramters, use `:` instead of `=`: `make_layer(kernel_bias=2.0)` -> `make_layer(kernel_bias: 2.0)`
- * to get a subrange of a `Tensor` , use C# 8 syntax (if available): `tensor[1..-2]` -> `tensor[1..^2]`. A single element can be addressed as usual: `tensor[1]`
+ * to get a subrange of a `Tensor` , use <<csharp8>> syntax (if available): `tensor[1..-2]` -> `tensor[1..^2]`. A single element can be addressed as usual: `tensor[1]`
 
 ## Names of classes and functions
-Generally, Gradient follows TensorFlow Python API naming.
+Generally, Gradient follows TensorFlow https://www.tensorflow.org/versions/r1.10/api_docs/python/tf[Python API] naming.
+There are, though, language-based differences:
+
+* in Python modules (roughly equivalent to namespaces) can directly contain functions. In .NET every function must be a part of some type. For that reason Gradient exposes static classes, named after the innermost module name to contain module functions and properties (but not classes). For example, Python's `tensorflow.contrib.data` module has a correspoding C# class `tensorflow.contrib.data.data`. So an equivalent of Python's `tensorflow.contrib.data.group_by_window` would be `tensorflow.contrib.data.data.group_by_window`. This mostly applies to the unofficial APIs.
+* most of the official API's functions and properties (but *not* classes) are exposed via a special class `tensorflow.tf`. Combined with `using tensorflow;` this enables invoking TensorFlow functions as neatly as: `tf.placeholder(...)`, `tf.keras.activations.relu(...)`, etc
+
+__there is also a similar class__ `numpy.np` __for NumPy functions__
+
+* class names and namespaces are mostly the same as in Python API.
+E.g. https://www.tensorflow.org/api_docs/python/tf/Session[`tf.Session`] is in `tensorflow` namespace,
+and can be instantiated via `new tensorflow.Session(...)` or simply `new Session(...)` with `using tensorflow;`
+
+* some APIs have multiple aliases, like https://www.tensorflow.org/versions/r1.10/api_docs/python/tf/add[tf.add].
+At the moment of writing this post, only one of the aliases was exposed by Gradient. Usually the first one.
+
+* in case of name conflicts (e.g. C# does not allow both `shape` property and `set_shape` method in the same class),
+one of the conflicting names is exposed with suffix `$$_$$`. For example: `set_shape$$_$$`, which should be easy to find in IDE autocomplete list.
+
+* (very rare) due to the way Gradient works, non-official classes, functions and properties might be exposed via unexpected namespaces.
+IDE should be able to help find classes (by suggesting to add an appropriate `using namespace;`). For functions and properties, one might try to find the class, corresponding to their containing module (see the example with `tensorflow.contrib.data` above, you could search for the `data` class). Another less convenient alternative is to use Visual Studio's Object Explorer.
+
+* (rare) some classes and functions, exposed by TensorFlow might only be exposed as function-typed properties.
+For example, https://www.tensorflow.org/versions/r1.10/api_docs/python/tf/ConfigProto[`ConfigProto`],
+that is used to configure `tf.Session` does not have a correspoing class in Gradient.
+To create an instance of `ConfigProto`, you must call its constructor via `ConfigProto` property in [title="tensorflow.core.protobuf.config_pb2"]`config_pb2` class: `config_pb2.ConfigProto()`
+
+## Parameter and return types
+Gradient tries hard to expose statically-typed API, but the underlying TensorFlow code is inherently dynamic.
+In many cases Gradient over-generalizes or under-generalizes underlying parameter and return types.
+
+When the parameter type is over-generalized, it simply means you loose a hint as to what can actually be passed.
+Gradient's parameter may be `IEnumerable<object>`, but the function can reject anything except a `Set<int>`.
+In these cases you can either refer to the https://www.tensorflow.org/versions/r1.10/api_docs/python/tf[official documentation],
+or quickly try it, and see if the error you get explains what the function actually expects.
+
+### Dynamic overloads
+TL;DR; when you can't pass something, replace `tf.func_name(...)` -> `tf.func_name_dyn(...)`,
+and `new Class(...)` -> `Class.NewDyn(...)`.
+
+When the parameter or return type is under-generalized, you will not be able to use Gradient's statically-typed API.
+A function parameter may say, that it only accepts `int` and `bool`, but you know from documentation/sample,
+that you have to pass a `Tensor`. Another common example is when Gradient thinks the parameter must be
+of a derived class, when a base class would actually also be ok. For example, parameter `cell` might be of type `LSTMCell`,
+but actually you should be able to pass any `RNNCell`, where `class LSTMCell: RNNCell`.
+Do not try converting the value you want to pass to the expected type. It will not work.
+For these cases Gradient provides dynamic API alongside statically-typed one.
+
+Every function from original API will have an untyped overload, whose name ends with `_dyn`.
+All its parameters intentionally allow anything to be passed (type `object`).
+It also returns a `dynamic` type.
+
+Same applies to properties. For each `SomeType property{get;set;}` there's a `dynamic property_dyn{get;set;}`.
+
+Every class with constructors will have an untyped static factory method, named `NewDyn`,
+which allows you to call class constructor similar to untyped function overloads in the previos paragraph.
+
+## Python `with` blocks, C#'s `using`
+TL;DR; replace `with new Session(...) as sess: sess.do_stuff()`
+with `new Session(...).UseSelf(sess => sess.do_stuff())`
+
+TensorFlow API, being built on Python, use special *enter* and *exit* methods for the same purpose
+.NET has `IDisposable`. Problem is that in general they do not map directly to each other.
+For that reason every Gradient class, that declares those special methods in TensorFlow,
+also exposes `.Use` and `.UseSelf` methods. In most cases it is easiest to use `.UseSelf(self => do_something(self))`
+as shown in the sample above. However, there might be rare special cases, when `.Use(context => do_something(context))`
+has to be used. The difference is that `obj.UseSelf` always passes `obj` back to the lambda,
+while `obj.Use` might actually generate a new object of potentially completely different type.
+
+Think of `.Use` and `.UseSelf` as Gradient's best attempt at reproducing `using(var session = new Session(...)) {}` statement.
+
+A full example how to use `.UseSelf` can be found in https://github.com/losttech/Gradient-Samples/blob/master/BasicMath/BasicMathProgram.cs[samples]
+
+
+## Exceptions
+This feature is still in development.
 
 # Limitations of the current tech preview
 __This section may be outdated__
 
 ### Can't inherit Gradient classes
 
-__While nothing will stop you from inheriting Gradient classes in C#, any new or overriden members will not be visible to TensorFlow. You may implement corresponding interfaces in C#, but don't inherit anything from any classes in `Gradient`, `tensorflow`, or `numpy` namespaces.__
+__While nothing will stop you from inheriting Gradient classes in .NET, any new or overriden members will not be visible to TensorFlow. You may implement corresponding *interfaces* in .NET, but don't inherit anything from any *classes* in `Gradient`, `tensorflow`, or `numpy` namespaces.__
 
-### Any callbacks, written in .NET are unable to call `Gradient` code.
+### Any callbacks written in .NET are unable to call `Gradient` code.
 
 Will NOT work:
-[source]
+[source,csharp]
 ----
 tf.layer(activation: PythonFunctionContainer.Of<double, double>(v => tf.sqrt(v)))
 ----
 
 Will work:
-[source]
+[source,csharp]
 ----
 tf.layer(activation: PythonFunctionContainer.Of<double, double>(v => System.Math.Sqrt(v)))
 ----
@@ -155,8 +229,8 @@ Note the use of `tf.sqrt` function inside lambda.
 
 __This is an https://github.com/pythonnet/pythonnet/issues/795[issue with the underlying interop library].__
 
-
 # Tips and Tricks
+[#csharp8]
 ## C# 8
 Gradient supports the neat indexing feature of C# 8: if you are using Visual Studio 2019 Preview+ or the .NET Core SDK 3 Preview+,
 you can set appropriate language level like this in the project file: `<LangVersion>8.0</LangVersion>`
