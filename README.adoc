@@ -27,7 +27,7 @@ Before installing Gradient, you should ensure, that you have TensorFlow installe
 . Install TensorFlow 1.10 using pip:
 .. Find `python.exe` in the installation directory (VS installs to: C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe)
 .. Open command line to the directory, containing `python.exe`
-.. Execute `.\python.exe -m pip install "tensorflow==1.10.\*"` or `.\python.exe -m pip install "tensorflow-gpu==1.10.*"` if you want GPU acceleration via CUDA
+.. Execute `.\python.exe -m pip install "tensorflow==1.10.\*"` or `.\python.exe -m pip install "tensorflow-gpu==1.10.*"` if you want GPU acceleration via CUDA (NVidia only)
 . Check the installation by launching `python.exe`, and running [source,python]`import tensorflow`. It should succeed.
 
 ### Add Nuget package to your project
@@ -115,8 +115,46 @@ Note, that `Session.run` also takes a sequence of `Tensor`-like objects.
 
 The full code for this example is available at our https://github.com/losttech/Gradient-Samples/tree/master/BasicMath[samples repository]
 
-# Porting Python code
-TBD
+# Porting Python code to Gradient
+In most cases converting Python code, that uses TensorFlow, should be as easy as using C# syntax instead of Python one:
+
+ * add `new` to class constructor calls: `Class()` to `new Class()`.
+
+__Its easy to spot class construction vs simple function calls in Python:
+by convention function names there start with a lower case letter like `min`,
+while in class names the first letter is capitalized: `Session` __
+
+ * to pass named paramters, use `:` instead of `=`: `make_layer(kernel_bias=2.0)` -> `make_layer(kernel_bias: 2.0)`
+ * to get a subrange of a `Tensor` , use C# 8 syntax (if available): `tensor[1..-2]` -> `tensor[1..^2]`. A single element can be addressed as usual: `tensor[1]`
+
+## Names of classes and functions
+Generally, Gradient follows TensorFlow Python API naming.
+
+# Limitations of the current tech preview
+__This section may be outdated__
+
+### Can't inherit Gradient classes
+
+__While nothing will stop you from inheriting Gradient classes in C#, any new or overriden members will not be visible to TensorFlow. You may implement corresponding interfaces in C#, but don't inherit anything from any classes in `Gradient`, `tensorflow`, or `numpy` namespaces.__
+
+### Any callbacks, written in .NET are unable to call `Gradient` code.
+
+Will NOT work:
+[source]
+----
+tf.layer(activation: PythonFunctionContainer.Of<double, double>(v => tf.sqrt(v)))
+----
+
+Will work:
+[source]
+----
+tf.layer(activation: PythonFunctionContainer.Of<double, double>(v => System.Math.Sqrt(v)))
+----
+
+Note the use of `tf.sqrt` function inside lambda.
+
+__This is an https://github.com/pythonnet/pythonnet/issues/795[issue with the underlying interop library].__
+
 
 # Tips and Tricks
 ## C# 8
