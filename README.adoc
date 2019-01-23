@@ -215,9 +215,6 @@ For example: `tf.layer.dense(activation: *tf.sigmoid_fn*)`.
 To get an instace of `PythonFunctionContainer` from a C# function, use static method `PythonFunctionContainer.Of<T1, ..., TResult>(func or lambda)`.
 You will have to specify function argument types in place of `<T1, ..., TResult>`.
 
-There are currently <<callback_restrictions, some restrictions>> on what can be done in .NET functions passed to Gradient.
-
-
 ## Python `with` blocks, C#'s `using`
 TL;DR; replace `with new Session(...) as sess: sess.do_stuff()`
 -> `new Session(...).UseSelf(sess => sess.do_stuff())`
@@ -278,25 +275,6 @@ __This section may be outdated__
 
 __While nothing will stop you from inheriting Gradient classes in .NET, any new or overriden members will not be visible to TensorFlow. You may implement corresponding *interfaces* in .NET, but don't inherit anything from any *classes* in `Gradient`, `tensorflow`, or `numpy` namespaces.__
 
-[#callback_restrictions]
-### Any callbacks written in .NET are unable to call `Gradient` code.
-
-Will NOT work:
-[source,csharp]
-----
-tf.layer(activation: PythonFunctionContainer.Of<double, double>(v => tf.sqrt(v)))
-----
-
-Will work:
-[source,csharp]
-----
-tf.layer(activation: PythonFunctionContainer.Of<double, double>(v => System.Math.Sqrt(v)))
-----
-
-Note the use of `tf.sqrt` function inside lambda.
-
-__This is an https://github.com/pythonnet/pythonnet/issues/795[issue with the underlying interop library].__
-
 # Tips and Tricks
 [#csharp8]
 ## C# 8
@@ -304,3 +282,14 @@ Gradient supports the neat indexing feature of C# 8: if you are using Visual Stu
 you can set appropriate language level like this in the project file: `<LangVersion>8.0</LangVersion>`
 
 Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`, which means "take a range from element at index 3, that excludes the last 4 elements".
+
+
+# What's new
+## Preview 3
+- fixed inability to reenter TensorFlow from a callback
+
+## Preview 2:
+
+- dynamically typed overloads, that enable fallback for tricky signatures
+- a common interface for tf.Variable and tf.Tensor
+- enabled enumeration over TensorFlow collection types
