@@ -283,6 +283,8 @@ you can set appropriate language level like this in the project file: `<LangVers
 
 Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`, which means "take a range from element at index 3, that excludes the last 4 elements".
 
+# Blogs & Blog Posts
+- https://habr.com/post/437174/[.NET, TensorFlow, and the windmills of Kaggle — the journey begins]
 
 # What's new
 ## Preview 3
