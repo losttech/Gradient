@@ -295,3 +295,48 @@ Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`,
 - dynamically typed overloads, that enable fallback for tricky signatures
 - a common interface for tf.Variable and tf.Tensor
 - enabled enumeration over TensorFlow collection types
+
+# FAQ
+## Why not TensorFlowSharp?
+|===
+| | TensorFlowSharp | Gradient
+
+| Load TensorFlow models
+| *✓*
+| *✓*
+
+| Train existing models
+| *✓*
+| *✓*
+
+| Create new models with low-level API
+| *✓*
+| *✓*
+
+| Create new models with high-level API
+| ✗
+| *✓*
+
+| Dependencies
+| *TF*
+| TF&nbsp;+ Python
+
+| TensorBoard integration
+| ✗
+| *✓*
+
+| Estimators
+| ✗
+| *✓*
+
+| Dataset manipulation via tf.data
+| ✗
+| *✓*
+
+| tf.contrib
+| ✗
+| *✓*
+
+| Commercial support
+| ✗
+| *✓*
