@@ -18,35 +18,35 @@ toc::[]
 
 # Getting started
 ## Installation
-Tech Preview is currently limited to Windows x64 machines, and full .NET Framework 4.7.1+ targets.
-
 ### Install Python + Tensorflow
 Before installing Gradient, you should ensure, that you have TensorFlow installed and working:
 
-. Install Python 3.6 64-bit. If you have Visual Studio 2017+, it is possible to install it as a component. Otherwise, get one from https://www.python.org/downloads/
+. Install Python 3.6 64-bit. If you have Visual Studio 2017+, it is possible to install it as a component. Otherwise, get one from https://www.python.org/downloads/ or your system's package manager
 . Install TensorFlow 1.10 using pip:
-.. Find `python.exe` in the installation directory (VS installs to: C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe)
-.. Open command line to the directory, containing `python.exe`
-.. Execute `.\python.exe -m pip install "tensorflow==1.10.\*"` or `.\python.exe -m pip install "tensorflow-gpu==1.10.*"` if you want GPU acceleration via CUDA (NVidia only)
-. Check the installation by launching `python.exe`, and running [source,python]`import tensorflow`. It should succeed.
+.. Find `python` executable in the installation directory (VS installs to: C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe)
+.. Open command line to the directory, containing `python`
+.. Execute `.\python -m pip install "tensorflow==1.10.\*"` or `.\python -m pip install "tensorflow-gpu==1.10.*"` if you want GPU acceleration via CUDA (NVidia only)
+. Check the installation by launching `python`, and running [source,python]`import tensorflow`. It should succeed.
 
 ### Add Nuget package to your project
 
-Gradient packages are published on https://www.nuget.org/packages/Gradient/[Nuget], but will not be "listed" until about Tech Preview 5, which means you won't be able to find it in the Nuget Package Manager. Nuget page lists the commands, necessary to install the package into your project. As of preview1 and the new .csproj format, the command is
+Gradient packages are published on https://www.nuget.org/packages/Gradient/[Nuget], but will not be "listed" until about Tech Preview 5, which means you won't be able to find it in the Nuget Package Manager. Nuget page lists the commands, necessary to install the package into your project. As of preview4 and the new .csproj format, the command is
 
 [source,powershell]
 ----
-dotnet add package Gradient --version 0.1.10-tech-preview1 
+dotnet add package Gradient --version 0.1.10-tech-preview4
 ----
 
 If using the new package management features of `.csproj`, this could also be achieved by adding the following line to it:
 
 [source,xml]
 ----
-<PackageReference Include="Gradient" Version="0.1.10-tech-preview1"  />
+<PackageReference Include="Gradient" Version="0.1.10-tech-preview4"  />
 ----
 
 See the example project file https://github.com/losttech/Gradient-Samples/blob/master/BasicMath/BasicMath.csproj[here].
+
+NOTE: If you are targeting .NET Framework 4.x, you must specify '--runtime win' for 'dotnet publish', and '--runtime win7-x64' for 'dotnet run'. It wont launch from Visual Studio.
 
 ## First steps
 
@@ -88,9 +88,9 @@ In this case we wrap the resulting `Tensor` objects into an array, as many const
 Next, you need to create a `Session` to run your graph one or multiple times. Sessions allocate CPU, GPU and memory resources, and hold the states of variables.
 
 NOTE: In GPU mode, TensorFlow will attempt to allocate all the GPU memory to itself at that stage,
-so ensure you don't have any other programs extensively using it, or https://stackoverflow.com/questions/34199233/how-to-prevent-tensorflow-from-allocating-the-totality-of-a-gpu-memory[turn down TensorFlow memory allocation] (has not been tested in Gradient Tech Preview)
+so ensure you don't have any other programs extensively using it, or https://stackoverflow.com/questions/34199233/how-to-prevent-tensorflow-from-allocating-the-totality-of-a-gpu-memory[turn down TensorFlow memory allocation]
 
-Since TensorFlow sessions hold unmanaged resources, they have to be used similar to (but not idential to) `IDisposable`:
+Since TensorFlow sessions hold unmanaged resources, they have to be used similar to (but not identical to) `IDisposable`:
 
 [source,csharp]
 ----
@@ -287,6 +287,11 @@ Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`,
 - https://habr.com/post/437174/[.NET, TensorFlow, and the windmills of Kaggle — the journey begins]
 
 # What's new
+## Preview 4:
+- MacOS and Ubuntu support (with others possibly working too) on .NET Core
+- documentation included for function and parameter tooltips
+- fixed inability to call static class methods
+
 ## Preview 3
 - fixed inability to reenter TensorFlow from a callback
 
