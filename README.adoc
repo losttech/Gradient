@@ -6,6 +6,7 @@
 # Gradient
 This repository serves as a public issue tracker and documentation for Gradient, full TensorFlow binding for .NET
 
+[link=https://www.nuget.org/packages/Gradient/]
 image::https://img.shields.io/nuget/v/Gradient.svg[NuGet]
 
 Gradient is a fully-fledged, mostly typed binding to TensorFlow for .NET
