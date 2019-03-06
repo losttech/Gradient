@@ -290,6 +290,11 @@ Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`,
 - https://habr.com/post/437174/[.NET, TensorFlow, and the windmills of Kaggle — the journey begins]
 
 # What's new
+## Preview 5:
+- support for indexing `Tensor` objects via `dynamic`
+- allow using specific Python environment via `GradientSetup.UsePythonEnvironment`
+- numerous fixes in the interop layer
+
 ## Preview 4:
 - MacOS and Ubuntu support (with others possibly working too) on .NET Core
 - documentation included for function and parameter tooltips
