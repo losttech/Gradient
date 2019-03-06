@@ -294,6 +294,7 @@ Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`,
 - support for indexing `Tensor` objects via `dynamic`
 - allow using specific Python environment via `GradientSetup.UsePythonEnvironment`
 - numerous fixes in the interop layer
+- https://github.com/losttech/Gradient-Samples/tree/master/GPT-2[GPT-2 sample]
 
 ## Preview 4:
 - MacOS and Ubuntu support (with others possibly working too) on .NET Core
