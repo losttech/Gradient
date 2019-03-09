@@ -1,4 +1,4 @@
-Lost Tech LLC permits non-commercial use of this technical preview of Gradient for the duration of the trial. This product can be used in a commercial environment, as long as it, any its derivatives or outputs are not used to obtain commerial gains.
+Lost Tech LLC permits use of this technical preview of Gradient for the duration of the trial free of charge for non-commercial use, or in small businesses (to qualify as a small business, the company must have both under $1M/year profit and under $5M/year revenue). This product can be used in any other commercial environment, as long as it, any its derivatives or outputs are not used to obtain commerial gains.
 
 Reverse engineering is prohibited to the extent, permitted by law.
 
