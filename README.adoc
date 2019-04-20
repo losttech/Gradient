@@ -354,3 +354,14 @@ Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`,
 | Commercial support
 | ✗
 | *✓*
+|===
+
+## Why not TensorFlow.NET?
+TensorFlow.NET goal is full reimplementation of TensorFlow in C#.
+However, as of April 2019 only a very small set of APIs actually has
+implementations. Many function and classes are defined without bodies
+and do nothing. The state of specific APIs is not tracked anywhere,
+and that can create a lot of confusion. For example, there is an
+https://github.com/SciSharp/TensorFlow.NET/blob/master/src/TensorFlowNET.Core/Train/AdamOptimizer.cs[AdamOptimizer]
+class, but it does not actually have any implementation, apart from
+the constructor, meaning it wont actually use Adam, or work at all.
