@@ -28,28 +28,26 @@ Before installing Gradient, you should ensure, that you have TensorFlow installe
 . Install TensorFlow 1.10 using pip:
 .. Find `python` executable in the installation directory (VS installs to: C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe)
 .. Open command line to the directory, containing `python`
-.. Execute `.\python -m pip install "tensorflow==1.10.\*"` or `.\python -m pip install "tensorflow-gpu==1.10.*"` if you want GPU acceleration via CUDA (NVidia only)
+.. Execute `.\python -m pip install "tensorflow==1.10.\*"` or `.\python -m pip install "tensorflow-gpu==1.10.*"` if you want GPU acceleration via CUDA (NVidia only, also requires matching CuDNN and CUDA, see https://www.tensorflow.org/install/[instructions])
 . Check the installation by launching `python`, and running [source,python]`import tensorflow`. It should succeed.
 
 ### Add Nuget package to your project
 
-Gradient packages are published on https://www.nuget.org/packages/Gradient/[Nuget], but will not be "listed" until about Tech Preview 5, which means you won't be able to find it in the Nuget Package Manager. Nuget page lists the commands, necessary to install the package into your project. As of preview4 and the new .csproj format, the command is
+Gradient packages are published on https://www.nuget.org/packages/Gradient/[Nuget]. Nuget page lists the commands, necessary to install the package into your project. As of preview5.1 and the new .csproj format, the command is
 
 [source,powershell]
 ----
-dotnet add package Gradient --version 0.1.10-tech-preview4
+dotnet add package Gradient --version 0.1.10-tech-preview5.1
 ----
 
 If using the new package management features of `.csproj`, this could also be achieved by adding the following line to it:
 
 [source,xml]
 ----
-<PackageReference Include="Gradient" Version="0.1.10-tech-preview4"  />
+<PackageReference Include="Gradient" Version="0.1.10-tech-preview5.1"  />
 ----
 
 See the example project file https://github.com/losttech/Gradient-Samples/blob/master/BasicMath/BasicMath.csproj[here].
-
-NOTE: If you are targeting .NET Framework 4.x, you must specify '--runtime win' for 'dotnet publish', and '--runtime win7-x64' for 'dotnet run'. It wont launch from Visual Studio.
 
 ## First steps
 
@@ -66,7 +64,7 @@ using Gradient;
 ### Logging
 https://www.tensorflow.org/api_docs/python/tf/logging[TensorFlow logging] is separate from Gradient logging. This section discusses the later.
 
-To enable Gradient logs, set appropriate properties of `GradientLog` static class, e.g.:
+To configure Gradient logs, set appropriate properties of `GradientLog` static class, e.g.:
 [source,csharp]
 GradientLog.OutputWriter = Console.Out;
 
@@ -78,14 +76,12 @@ Graph creation methods are located in the `tf` class from `tensorflow` namespace
 
 [source,csharp]
 ----
-var a = new dynamic[] { tf.constant(5.0, name: "a") };
-var b = new dynamic[] { tf.constant(10.0, name: "b") };
+var a = tf.constant(5.0, name: "a");
+var b = tf.constant(10.0, name: "b");
 
-var sum = new dynamic[] { tf.add(a, b, name: "sum") };
-var div = new dynamic[] { tf.div(a, b, name: "div") };
+var sum = tf.add(a, b, name: "sum");
+var div = tf.div(a, b, name: "div");
 ----
-
-In this case we wrap the resulting `Tensor` objects into an array, as many construction functions in Gradient like `tf.add` expect arrays (or rather `IEnumerable`), not individual `Tensor` values. (that might change in the future)
 
 #### Running computation
 Next, you need to create a `Session` to run your graph one or multiple times. Sessions allocate CPU, GPU and memory resources, and hold the states of variables.
@@ -114,8 +110,6 @@ new Session().UseSelf(session => {
 });
 ----
 
-Note, that `Session.run` also takes a sequence of `Tensor`-like objects.
-
 The full code for this example is available at our https://github.com/losttech/Gradient-Samples/tree/master/BasicMath[samples repository]
 
 # Porting Python code to Gradient + C#
@@ -128,7 +122,7 @@ by convention function names there start with a lower case letter like `min`,
 while in class names the first letter is capitalized: `Session` __
 
  * to pass named paramters, use `:` instead of `=`: `make_layer(kernel_bias=2.0)` -> `make_layer(kernel_bias: 2.0)`
- * to get a subrange of a `Tensor` , use <<csharp8>> syntax (if available): `tensor[1..-2]` -> `tensor[1..^2]`. A single element can be addressed as usual: `tensor[1]`
+ * to get a subrange of a `Tensor` , use <<csharp8>> syntax (if available): `tensor[1..-2]` -> `tensor[1..^3]` (when using C# 8 ranges, note, that the right side in C# is *INCLUSIVE*, while in Python it is *EXCLUSIVE*). A single element can be addressed as usual: `tensor[1]`
 
 ## Names of classes and functions
 Generally, Gradient follows TensorFlow https://www.tensorflow.org/versions/r1.10/api_docs/python/tf[Python API] naming.
@@ -284,12 +278,21 @@ __While nothing will stop you from inheriting Gradient classes in .NET, any new 
 Gradient supports the neat indexing feature of C# 8: if you are using Visual Studio 2019 Preview+ or the .NET Core SDK 3 Preview+,
 you can set appropriate language level like this in the project file: `<LangVersion>8.0</LangVersion>`
 
-Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`, which means "take a range from element at index 3, that excludes the last 4 elements".
+Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`, which means "take a range from element at index 3, that includes all elements until (and including) the element with index 4 (counting from the end of the array)".
 
 # Blogs, Blog Posts & 3rd-party Samples
 - https://habr.com/post/437174/[.NET, TensorFlow, and the windmills of Kaggle — the journey begins]
 
 # What's new
+## Preview 5.1:
+- improved passing dictionaries
+- setup: optionally specify Conda environment via an environment variable
+- setup: fixed Conda environment autodectection on Linux
+- improved argument types in many places
+- Gradient warnings are now printed to Console.Error by default, instead of Console.Out
+- fixed crashes on dynamic interop and multithreaded enumeration
+- fixed some properties not being exposed https://github.com/losttech/Gradient/issues/4
+
 ## Preview 5:
 - support for indexing `Tensor` objects via `dynamic`
 - allow using specific Python environment via `GradientSetup.UsePythonEnvironment`
