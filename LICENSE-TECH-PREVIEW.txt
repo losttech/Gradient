@@ -3,3 +3,8 @@ Lost Tech LLC permits use of this technical preview of Gradient for the duration
 Reverse engineering is prohibited to the extent, permitted by law.
 
 The product is distributed as is. Lost Tech LLC can not be held liable for any amount, surpassing the cost of the product.
+
+
+THE OPEN SOURCE PROMISE
+
+In the unlikely event this project is no longer maintained (new versions are not released) for at least 18 consecutive months, its source code should be released under Apache License 2.0. If the code is not released under these circumstances, Lost Tech LLC permits binary decompilation to obtain sources.
