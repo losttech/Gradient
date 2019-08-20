@@ -68,6 +68,10 @@ To configure Gradient logs, set appropriate properties of `GradientLog` static c
 [source,csharp]
 GradientLog.OutputWriter = Console.Out;
 
+### Selecting Python environment
+If you want to use Gradient with non-default configuration (e.g. different versions instead of Python 3.6 + TensorFlow 1.10),
+use one of `GradientSetup.UseEnvironment*` methods before accessing any TensorFlow methods to select the desired TensorFlow installation.
+
 ### Old style TF
 Prior to the recent changes, the main way to use TensorFlow was to contstruct a computation graph, and then run it in a session. Most of the existing examples will use this mode.
 
