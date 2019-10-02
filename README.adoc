@@ -72,6 +72,10 @@ GradientLog.OutputWriter = Console.Out;
 If you want to use Gradient with non-default configuration (e.g. different versions instead of Python 3.6 + TensorFlow 1.10),
 use one of `GradientSetup.UseEnvironment*` methods before accessing any TensorFlow methods to select the desired TensorFlow installation.
 
+NOTE: On Linux and MacOS Gradient may fail to find correct Python interpreter. This is due to a bug in
+the older version of https://www.nuget.org/packages/WhichPython[WhichPython package]. If you get
+`Gradient.GradientInitializationException: Python 3.6 not found."``, install the latest version of WhichPython.
+
 ### Old style TF
 Prior to the recent changes, the main way to use TensorFlow was to contstruct a computation graph, and then run it in a session. Most of the existing examples will use this mode.
 
@@ -239,6 +243,16 @@ This feature is still in development.
 ## NumPy
 Since most TensorFlow samples use NumPy, Gradient includes a limited subset under `numpy` namespace.
 
+## anchor:inheritance[]Custom layers and `Model` subclassing
+
+NOTE: When subclassing `tensorflow.keras.Model`, every layer, variable or tensor
+must be explicitly tracked using `this.Track` method. See
+https://github.com/losttech/Gradient-Samples/blob/03aa035080d3a46fe6a4c8dcfd6e8f1b91a414a7/ResNetBlock/ResNetBlock.cs#L19[ResNetBlock sample].
+
+https://www.tensorflow.org/tutorials/customization/custom_layers[The official TensorFlow tutorial]
+
+
+
 ## Recommendations
 * import both `tensorflow` and `numpy` namespaces:
 [source,csharp]
@@ -260,7 +274,7 @@ new Dense(kernel_regularizer: regularizers.l2(...));
 * many Gradient functions return `dynamic`. Whenever possible, immediately cast it to the concrete type.
 It will help to maintain the code. Concrete type is always known at runtime
 and can be seen in the debugger, or accessed via `object.GetType()` method.
-Most methods in `tf.` actually return `Tensor`.
+Most methods in `tf.` usually return `Tensor`.
 [source,csharp]
 ----
 Tensor hidden = tf.layers.dense(input, hiddenSize, activation: tf.sigmoid_fn);
@@ -272,9 +286,15 @@ They are Gradient's implementation details, which might be changed in the future
 # Limitations of the current tech preview
 __This section may be outdated__
 
-### Can't inherit Gradient classes
+### Overriding TensorFlow properties in derived classes
 
-__While nothing will stop you from inheriting Gradient classes in .NET, any new or overriden members will not be visible to TensorFlow. You may implement corresponding *interfaces* in .NET, but don't inherit anything from any *classes* in `Gradient`, `tensorflow`, or `numpy` namespaces.__
+Calling `base.PropertyName` attempting to override a TensorFlow property
+ in a derived class can lead to `StackOverflowException`.
+
+### Linux and MacOS
+
+You must manually install the latest version of https://www.nuget.org/packages/WhichPython/[WhichPython]
+package to ensure Gradient can automatically find your Python interpreter.
 
 # Tips and Tricks
 [#csharp8]
@@ -288,6 +308,19 @@ Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`,
 - https://habr.com/post/437174/[.NET, TensorFlow, and the windmills of Kaggle — the journey begins]
 
 # What's new
+## Preview 6.x:
+- feature: ability to <<inheritance,inherit TensorFlow classes>> (for example, allows
+ to create a custom Keras `Model`, `Callback`, `Layer`, etc)
+- new sample: https://github.com/losttech/Gradient-Samples/tree/master/ResNetBlock[ResNetBlock]
+- feature: TensorFlow classes are properly marshalled when passed back to you from TensorFlow
+- fixed: inability to add items to collections, belonging to TensorFlow classes
+- fixed: crash while enumerating collections without an explicit GIL lock
+- fixed: crash due to use-after-free of TensorFlow objects in marshalling layer
+- fixed: `PythonClassContainer<T>.Instance` failing for nested classes
+- fixed: `params object[]` were not passed correctly
+- minor: added `np.expand_dims`, reduced number of thrown and handled exceptions
+- expires in March 2020
+
 ## Preview 5.1:
 - improved passing dictionaries
 - setup: optionally specify Conda environment via an environment variable
