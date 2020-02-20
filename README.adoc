@@ -291,23 +291,39 @@ __This section may be outdated__
 Calling `base.PropertyName` attempting to override a TensorFlow property
  in a derived class can lead to `StackOverflowException`.
 
-### Linux and MacOS
-
-You must manually install the latest version of https://www.nuget.org/packages/WhichPython/[WhichPython]
-package to ensure Gradient can automatically find your Python interpreter.
-
 # Tips and Tricks
 [#csharp8]
 ## C# 8
-Gradient supports the neat indexing feature of C# 8: if you are using Visual Studio 2019 Preview+ or the .NET Core SDK 3 Preview+,
-you can set appropriate language level like this in the project file: `<LangVersion>8.0</LangVersion>`
+Gradient supports the neat indexing feature of C# 8: if you are using Visual Studio 2019,
+you can set appropriate language level like this in the project file: `<LangVersion>8.0</LangVersion>`.
+Project must target .NET Core 2.x or .NET Framework. In .NET Core 3.x this feature
+is not available due to a conflict with `System.Range` and `System.Index` classes, that shipped
+in .NET Core 3.x.
 
 Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`, which means "take a range from element at index 3, that includes all elements until (and including) the element with index 4 (counting from the end of the array)".
 
 # Blogs, Blog Posts & 3rd-party Samples
 - https://habr.com/post/437174/[.NET, TensorFlow, and the windmills of Kaggle — the journey begins]
+- http://ml.blogs.losttech.software/Reinforcement-Learning-With-Unity-ML-Agents/[Reinforcement learning with Unity ML agents]
+- https://lostmsu.github.io/Not-CSharp/[Not C#] - training a convolutional network to recognize programming languages
+
+
 
 # What's new
+## Preview 7:
+- TensorFlow 1.15
+- strongly-typed accessors for `ndarray<T>`
+- arithmetic, bitwise and comparison operators on Tensors (note, now to check for null `is null` must be used instead of `== null`)
+- `StartUsing` extension on classes like `Session`, `variable_scope`, etc to allow `using (new variable_scope(...).StartUsing()) { ... }`
+- improved support for enums
+- prepackaged TensorFlow runtime on NuGet.org for easy installation:
+https://www.nuget.org/packages/LostTech.TensorFlow.Python[LostTech.TensorFlow.Python]
+- minimal wrapper for NumPy is released in a separate package (see dependencies)
+- runtime initialization moved to Gradient.Runtime
+- bugfixes: https://github.com/losttech/Gradient/milestone/3[see Milestone] + internally reported bugs
+- new sample: https://github.com/losttech/Gradient-Samples/tree/master/RL-MLAgents/[reinforcement learning with Unity ML agents]
+explained in detail in http://ml.blogs.losttech.software/Reinforcement-Learning-With-Unity-ML-Agents/[a blog post]
+
 ## Preview 6.x:
 - feature: ability to <<inheritance,inherit TensorFlow classes>> (for example, allows
  to create a custom Keras `Model`, `Callback`, `Layer`, etc)
