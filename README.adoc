@@ -22,13 +22,17 @@ toc::[]
 # Getting started
 ## Installation
 ### Install Python + Tensorflow
-Before installing Gradient, you should ensure, that you have TensorFlow installed and working:
+Before installing Gradient, you should ensure, that you have TensorFlow installed and working (or use
+<<using_packaged_environment,packaged environment>> from NuGet):
 
 . Install Python 3.6 64-bit. If you have Visual Studio 2017+, it is possible to install it as a component. Otherwise, get one from https://www.python.org/downloads/ or your system's package manager
-. Install TensorFlow 1.10 using pip:
+. Install TensorFlow 1.15.0 (1.15.2 release has a https://github.com/tensorflow/tensorflow/issues/36417[critical bug])
+ using pip:
 .. Find `python` executable in the installation directory (VS installs to: C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe)
 .. Open command line to the directory, containing `python`
-.. Execute `.\python -m pip install "tensorflow==1.10.\*"` or `.\python -m pip install "tensorflow-gpu==1.10.*"` if you want GPU acceleration via CUDA (NVidia only, also requires matching CuDNN and CUDA, see https://www.tensorflow.org/install/[instructions])
+.. Execute `.\python -m pip install "tensorflow==1.15.0"` or `.\python -m pip install "tensorflow-cpu==1.15.0"`
+if you do not need GPU acceleration via CUDA (to use which you also need matching CuDNN and CUDA installed,
+see https://www.tensorflow.org/install/[instructions])
 . Check the installation by launching `python`, and running [source,python]`import tensorflow`. It should succeed.
 
 ### Add Nuget package to your project
@@ -37,14 +41,14 @@ Gradient packages are published on https://www.nuget.org/packages/Gradient/[Nuge
 
 [source,powershell]
 ----
-dotnet add package Gradient --version 0.1.10-tech-preview5.1
+dotnet add package Gradient --version 0.15.7.2
 ----
 
 If using the new package management features of `.csproj`, this could also be achieved by adding the following line to it:
 
 [source,xml]
 ----
-<PackageReference Include="Gradient" Version="0.1.10-tech-preview5.1"  />
+<PackageReference Include="Gradient" Version="0.15.7.2" />
 ----
 
 See the example project file https://github.com/losttech/Gradient-Samples/blob/master/BasicMath/BasicMath.csproj[here].
@@ -69,12 +73,20 @@ To configure Gradient logs, set appropriate properties of `GradientLog` static c
 GradientLog.OutputWriter = Console.Out;
 
 ### Selecting Python environment
-If you want to use Gradient with non-default configuration (e.g. different versions instead of Python 3.6 + TensorFlow 1.10),
-use one of `GradientSetup.UseEnvironment*` methods before accessing any TensorFlow methods to select the desired TensorFlow installation.
+If you want to use Gradient with non-default configuration (e.g. different versions instead of Python 3.6 + TensorFlow 1.15),
+use one of `GradientEngine.UseEnvironment*` methods before accessing any TensorFlow methods to select the desired TensorFlow installation.
 
-NOTE: On Linux and MacOS Gradient may fail to find correct Python interpreter. This is due to a bug in
-the older version of https://www.nuget.org/packages/WhichPython[WhichPython package]. If you get
-`Gradient.GradientInitializationException: Python 3.6 not found."``, install the latest version of WhichPython.
+### Using packaged environment
+[link=https://www.nuget.org/packages/LostTech.TensorFlow.Python/]
+image::https://img.shields.io/nuget/v/LostTech.TensorFlow.Python.svg[NuGet]
+1. Install NuGet package https://www.nuget.org/packages/LostTech.TensorFlow.Python[LostTech.TensorFlow.Python]
+2. Deploy TensorFlow from the package and configure Gradient to use it:
+
+[source,csharp]
+----
+var pyEnv = LostTech.TensorFlow.PackagedTensorFlow.EnsureDeployed(DIRECTORY);
+GradientEngine.UseEnvironment(pyEnv);
+----
 
 ### Old style TF
 Prior to the recent changes, the main way to use TensorFlow was to contstruct a computation graph, and then run it in a session. Most of the existing examples will use this mode.
@@ -97,11 +109,11 @@ Next, you need to create a `Session` to run your graph one or multiple times. Se
 NOTE: In GPU mode, TensorFlow will attempt to allocate all the GPU memory to itself at that stage,
 so ensure you don't have any other programs extensively using it, or https://stackoverflow.com/questions/34199233/how-to-prevent-tensorflow-from-allocating-the-totality-of-a-gpu-memory[turn down TensorFlow memory allocation]
 
-Since TensorFlow sessions hold unmanaged resources, they have to be used similar to (but not identical to) `IDisposable`:
-
+Since TensorFlow sessions hold unmanaged resources, they have to be used with `IDisposable` pattern:
 [source,csharp]
 ----
-new Session().UseSelf(session => {
+var session = new Session();
+using(session.StartUsing()) {
     ...do something with the session...
 });
 ----
@@ -110,12 +122,13 @@ Now that you have a `Session` to work with, you can actually compute the values 
 
 [source,csharp]
 ----
-new Session().UseSelf(session => {
+var session = new Session();
+using(session.StartUsing()) {
     Console.WriteLine($"a = {session.run(a)}");
     Console.WriteLine($"b = {session.run(b)}");
     Console.WriteLine($"a + b = {session.run(sum)}");
     Console.WriteLine($"a / b = {session.run(div)}");
-});
+};
 ----
 
 The full code for this example is available at our https://github.com/losttech/Gradient-Samples/tree/master/BasicMath[samples repository]
@@ -133,7 +146,7 @@ while in class names the first letter is capitalized: `Session` __
  * to get a subrange of a `Tensor` , use <<csharp8>> syntax (if available): `tensor[1..-2]` -> `tensor[1..^3]` (when using C# 8 ranges, note, that the right side in C# is *INCLUSIVE*, while in Python it is *EXCLUSIVE*). A single element can be addressed as usual: `tensor[1]`
 
 ## Names of classes and functions
-Generally, Gradient follows TensorFlow https://www.tensorflow.org/versions/r1.10/api_docs/python/tf[Python API] naming.
+Generally, Gradient follows TensorFlow https://www.tensorflow.org/versions/r1.15/api_docs/python/tf[Python API] naming.
 There are, though, language-based differences:
 
 * in Python modules (roughly equivalent to namespaces) can directly contain functions. In .NET every function must be a part of some type. For that reason Gradient exposes static classes, named after the innermost module name to contain module functions and properties (but not classes). For example, Python's `tensorflow.contrib.data` module has a correspoding C# class `tensorflow.contrib.data.data`. So an equivalent of Python's `tensorflow.contrib.data.group_by_window` would be `tensorflow.contrib.data.data.group_by_window`. This mostly applies to the unofficial APIs.
@@ -145,8 +158,8 @@ __there is also a similar class__ `numpy.np` __for NumPy functions__
 E.g. https://www.tensorflow.org/api_docs/python/tf/Session[`tf.Session`] is in `tensorflow` namespace,
 and can be instantiated via `new tensorflow.Session(...)` or simply `new Session(...)` with `using tensorflow;`
 
-* some APIs have multiple aliases, like https://www.tensorflow.org/versions/r1.10/api_docs/python/tf/add[tf.add].
-At the moment of writing this post, only one of the aliases was exposed by Gradient. Usually the first one.
+* some APIs have multiple aliases, like https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/add[tf.add].
+At the moment of writing this post, only one of the aliases was exposed by Gradient. Usually the shortest one.
 
 * in case of name conflicts (e.g. C# does not allow both `shape` property and `set_shape` method in the same class),
 one of the conflicting names is exposed with suffix `$$_$$`. For example: `set_shape$$_$$`, which should be easy to find in IDE autocomplete list.
@@ -155,9 +168,9 @@ one of the conflicting names is exposed with suffix `$$_$$`. For example: `set_s
 IDE should be able to help find classes (by suggesting to add an appropriate `using namespace;`). For functions and properties, one might try to find the class, corresponding to their containing module (see the example with `tensorflow.contrib.data` above, you could search for the `data` class). Another less convenient alternative is to use Visual Studio's Object Explorer.
 
 * (rare) some classes and functions, exposed by TensorFlow might only be exposed as function-typed properties.
-For example, https://www.tensorflow.org/versions/r1.10/api_docs/python/tf/ConfigProto[`ConfigProto`],
+For example, https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/ConfigProto[`ConfigProto`],
 that is used to configure `tf.Session` does not have a correspoing class in Gradient.
-To create an instance of `ConfigProto`, you must call its constructor via `ConfigProto` property in [title="tensorflow.core.protobuf.config_pb2"]`config_pb2` class: `config_pb2.ConfigProto()`
+To create an instance of `ConfigProto`, you must call its constructor via `ConfigProto` property in [title="tensorflow.core.protobuf.config_pb2"]`config_pb2` class: `config_pb2.ConfigProto.CreateInstance()` or `config_pb2.ConfigProto()`.
 
 ## Parameter and return types
 Gradient tries hard to expose statically-typed API, but the underlying TensorFlow code is inherently dynamic.
@@ -165,7 +178,7 @@ In many cases Gradient over-generalizes or under-generalizes underlying paramete
 
 When the parameter type is over-generalized, it simply means you loose a hint as to what can actually be passed.
 Gradient's parameter may be `IEnumerable<object>`, but the function can reject anything except a `Set<int>`.
-In these cases you can either refer to the https://www.tensorflow.org/versions/r1.10/api_docs/python/tf[official documentation],
+In these cases you can either refer to the https://www.tensorflow.org/versions/r1.15/api_docs/python/tf[official documentation],
 or quickly try it, and see if the error you get explains what the function actually expects.
 
 ### Dynamic overloads
@@ -222,7 +235,16 @@ You will have to specify function argument types in place of `<T1, ..., TResult>
 
 ## Python `with` blocks, C#'s `using`
 TL;DR; replace `with new Session(...) as sess: sess.do_stuff()`
--> `new Session(...).UseSelf(sess => sess.do_stuff())`
+->
+[source,csharp]
+----
+var session = new Session(...);
+using (session.StartUsing()) {
+    session.do_stuff();
+}
+----
+
+You can also use `new Session().UseSelf(sess => sess.DoStuff())`.
 
 TensorFlow API, being built on Python, use special *enter* and *exit* methods for the same purpose
 .NET has `IDisposable`. Problem is: in general they do not map directly to each other.
@@ -242,6 +264,10 @@ This feature is still in development.
 
 ## NumPy
 Since most TensorFlow samples use NumPy, Gradient includes a limited subset under `numpy` namespace.
+It is shipped in a separate package: https://www.nuget.org/packages/LostTech.NumPy/[LostTech.NumPy].
+
+[link=https://www.nuget.org/packages/LostTech.NumPy/]
+image::https://img.shields.io/nuget/v/LostTech.NumPy.svg[NuGet]
 
 ## anchor:inheritance[]Custom layers and `Model` subclassing
 
