@@ -182,7 +182,7 @@ In these cases you can either refer to the https://www.tensorflow.org/versions/r
 or quickly try it, and see if the error you get explains what the function actually expects.
 
 ### Dynamic overloads
-TL;DR; when you can't pass something, replace `tf.func_name(...)` -> `tf.func_name_dyn(...)`,
+TL;DR; when you can't pass something or get `InvalidCastException`, replace `tf.func_name(...)` -> `tf.func_name_dyn(...)`,
 and `new Class(...)` -> `Class.NewDyn(...)`.
 
 When the parameter or return type is under-generalized, you will not be able to use Gradient's statically-typed API.
