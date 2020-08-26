@@ -1,0 +1,20 @@
+Copyright (c) 2020 Lost Tech LLC
+
+1. For non-commercial use and small businesses (must have
+under $5M/year turnover and under $1M/year profit):
+
+Permission is hereby granted, free of charge, to use and copy the Software
+for own use. Redistribution is permitted to non-commercial entities, who
+must agree to the same terms. Decompilation and other forms of reverse
+engineering of the Software are prohibited.
+
+2. For commercial use a separate license must be acquired
+via https://losttech.software/buy_gradient.html
+
+3. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES
+OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
