@@ -1,15 +1,17 @@
-Lost Tech TensorFlow Cloud Edition Privacy Policy
+Lost Tech TensorFlow Pay-As-You-Go Privacy Policy
 
 
-Lost Tech TensorFlow Cloud Edition collects the following information:
+Lost Tech TensorFlow Pay-As-You-Go collects the following information:
 
 - information about physical or virtual hardware the Software is running on
 - amount of time spent using the Software
-- cost of renting the hardware from the cloud
+- name of the cloud provider and type of the instance the Software is running on
+- unique identifier of the cloud subscription
+
 
 This information is used to calculate the correct bill amount for the usage
-of the Software and may be processed and stored by your cloud provider. We
-never share this information with third parties.
+of the Software and may be processed and stored in Azure or your cloud provider.
+We never share this information with third parties.
 
 
 You can also explicitly opt-in to share the following information with Lost Tech LLC:
