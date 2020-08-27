@@ -4,8 +4,8 @@ Copyright (c) 2020 Lost Tech LLC
 under $5M/year turnover and under $1M/year profit):
 
 Permission is hereby granted, free of charge, to use and copy the Software
-for own use. Redistribution is permitted to non-commercial entities, who
-must agree to the same terms. Decompilation and other forms of reverse
+for own purposes. Redistribution is permitted only to non-commercial entities,
+who must agree to the same terms. Decompilation and other forms of reverse
 engineering of the Software are prohibited.
 
 2. For commercial use a separate license must be acquired
