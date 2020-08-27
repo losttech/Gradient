@@ -1,0 +1,21 @@
+Copyright (c) 2020 Lost Tech LLC
+
+This license is only applicable to Pay-As-You-Go subscribers.
+Sign up at https://portal.azure.com/#create/losttechllc.tensorflow/preview
+
+1. Permission is hereby granted, to use and copy the Software to any
+Internet-connected device for any purpose. Every running copy of the Software
+must be supplied with an appropriate key for an active subscription, and
+be able to access metering services.
+
+2. A separate license must be obtained to access software source code.
+Decompilation and other forms of reverse engineering of the Software are
+prohibited.
+
+3. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE LOST TECH LLC BE LIABLE FOR ANY CLAIM, DAMAGES
+OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
