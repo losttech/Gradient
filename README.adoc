@@ -3,84 +3,113 @@
 :toclevels: 3
 :language: csharp
 
-# Gradient
-This repository serves as a public issue tracker and documentation for Gradient, full TensorFlow binding for .NET
+# LostTech.TensorFlow (formerly Gradient)
+This repository serves as a public issue tracker and documentation for LostTech.TensorFlow, full TensorFlow binding for .NET
 
-[link=https://www.nuget.org/packages/Gradient/]
-image::https://img.shields.io/nuget/v/Gradient.svg[NuGet]
+[link=https://www.nuget.org/packages/LostTech.TensorFlow/]
+image::https://img.shields.io/nuget/v/LostTech.TensorFlow.svg[NuGet]
 
-Gradient is a fully-fledged, mostly typed binding to TensorFlow for .NET
+LostTech.TensorFlow enables .NET developers to use the complete set of TensorFlow APIs from any .NET language.
 
 You can find samples at https://github.com/losttech/Gradient-Samples
 
-[quote, Gradient-based Char-RNN trained on Shakespeare]
+[quote, Char-RNN trained on Shakespeare]
 He shall speak not reverbering injurance.
 
 # Contents
 toc::[]
 
 # Getting started
+## Supported platforms
+LostTech.TensorFlow is fully supported on Windows, MacOS, and Linux on AMD64/x64
+architecture. It might work on other OS/CPU architecture combinations, but will
+only be supported on the best effort basis.
+
 ## Installation
 ### Install Python + Tensorflow
-Before installing Gradient, you should ensure, that you have TensorFlow installed and working (or use
-<<using_packaged_environment,packaged environment>> from NuGet):
+Before installing LostTech.TensorFlow, you should ensure, that you have
+TensorFlow installed and working (or use <<using_packaged_environment,packaged environment>> from NuGet):
 
-. Install Python 3.6 64-bit. If you have Visual Studio 2017+, it is possible to install it as a component. Otherwise, get one from https://www.python.org/downloads/ or your system's package manager
-. Install TensorFlow 1.15.0 (1.15.2 release has a https://github.com/tensorflow/tensorflow/issues/36417[critical bug])
- using pip:
+. Install Python 3.7 64-bit. If you have Visual Studio 2017+, it is possible to install it as a component. Otherwise, get one from https://www.python.org/downloads/ or your system's package manager
+. Install TensorFlow 1.15.0 (1.15.1+ release has a https://github.com/tensorflow/tensorflow/issues/36417[critical bug])
+ using pip (https://www.tensorflow.org/install/[official instructions]):
 .. Find `python` executable in the installation directory (VS installs to: C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python36_64\python.exe)
 .. Open command line to the directory, containing `python`
-.. Execute `.\python -m pip install "tensorflow==1.15.0"` or `.\python -m pip install "tensorflow-cpu==1.15.0"`
-if you do not need GPU acceleration via CUDA (to use which you also need matching CuDNN and CUDA installed,
-see https://www.tensorflow.org/install/[instructions])
+.. Execute `.\python -m pip install "tensorflow-gpu==1.15.0"` or `.\python -m pip install "tensorflow-cpu==1.15.0"`.
+GPU acceleration requires matching CuDNN and CUDA 10 installed,
+see https://www.tensorflow.org/install/gpu#older_versions_of_tensorflow[instructions].
 . Check the installation by launching `python`, and running [source,python]`import tensorflow`. It should succeed.
 
 ### Add Nuget package to your project
 
-Gradient packages are published on https://www.nuget.org/packages/Gradient/[Nuget]. Nuget page lists the commands, necessary to install the package into your project. As of preview5.1 and the new .csproj format, the command is
+LostTech.TensorFlow packages are published on https://www.nuget.org/packages/LostTech.TensorFlow/[Nuget].
+Nuget page lists the commands, necessary to install the package into your
+project. For dotnet-based projects CLI command is
 
 [source,powershell]
 ----
-dotnet add package Gradient --version 0.15.7.2
+dotnet add package LostTech.TensorFlow --pre
 ----
 
 If using the new package management features of `.csproj`, this could also be achieved by adding the following line to it:
 
 [source,xml]
 ----
-<PackageReference Include="Gradient" Version="0.15.7.2" />
+<PackageReference Include="LostTech.TensorFlow" Version="1.15.0-RC1" />
 ----
 
 See the example project file https://github.com/losttech/Gradient-Samples/blob/master/BasicMath/BasicMath.csproj[here].
 
 ## First steps
 
-### Namespaces
-In most cases, you will need to add `using tensorflow;` at the beginning of your file. In many cases you will also need `using Gradient;` and `using numpy;`.
+### Packages and Namespaces
+In most cases, you will need to add `using tensorflow;` at the beginning of your
+file. In many cases you will also need `using LostTech.TensorFlow;` and
+`using numpy;`.
 
 [source,csharp]
 ----
 using numpy;
 using tensorflow;
-using Gradient;
+using LostTech.TensorFlow;
+----
+
+Commercial users will also need to add a https://www.nuget.org/packages/LostTech.Gradient.License.Azure/[licensing package for Pay-As-You-Go]:
+[link=https://www.nuget.org/packages/LostTech.Gradient.License.Azure/]
+image::https://img.shields.io/nuget/v/LostTech.Gradient.License.Azure.svg[NuGet]
+
+And configure the key from the https://lt-tf-lic-portal.azurewebsites.net/Home/Subscriptions[Subscriptions Page].
+
+[source,csharp]
+----
+using LostTech.TensorFlow;
+using LostTech.TensorFlow.Licensing;
+TensorFlowSetup.Instance.UseLicense(new AzureLicense("...Key Goes Here..."));
+TensorFlowSetup.Instance.EnsureInitialized();
 ----
 
 ### Logging
-https://www.tensorflow.org/api_docs/python/tf/logging[TensorFlow logging] is separate from Gradient logging. This section discusses the later.
+https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/compat/v1/logging[TensorFlow logging]
+is separate from LostTech.TensorFlow logging. This section discusses the later.
 
-To configure Gradient logs, set appropriate properties of `GradientLog` static class, e.g.:
+LostTech.TensorFlow core runtime library is https://www.nuget.org/packages/Gradient.Runtime/[Gradient.Runtime].
+To configure runtime logging, set appropriate properties of https://gradient.docs.losttech.software/Runtime/v0.4.2/LostTech.Gradient/GradientLog.htm[`LostTech.Gradient.GradientLog`] static class, e.g.:
 [source,csharp]
 GradientLog.OutputWriter = Console.Out;
 
 ### Selecting Python environment
-If you want to use Gradient with non-default configuration (e.g. different versions instead of Python 3.6 + TensorFlow 1.15),
-use one of `GradientEngine.UseEnvironment*` methods before accessing any TensorFlow methods to select the desired TensorFlow installation.
+If you want to use TensorFlow with non-default configuration (e.g. different versions instead of Python 3.7 + TensorFlow 1.15),
+use one of `LostTech.Gradient.GradientEngine.UseEnvironment*` methods before accessing any TensorFlow methods to select the desired TensorFlow installation.
+
+We also recommend to explicitly call `TensorFlowSetup.Instance.EnsureInitialized()`
+to be able to catch any problems with TensorFlow installation. This is especially important
+in production systems.
 
 ### Using packaged environment
 [link=https://www.nuget.org/packages/LostTech.TensorFlow.Python/]
 image::https://img.shields.io/nuget/v/LostTech.TensorFlow.Python.svg[NuGet]
 1. Install NuGet package https://www.nuget.org/packages/LostTech.TensorFlow.Python[LostTech.TensorFlow.Python]
-2. Deploy TensorFlow from the package and configure Gradient to use it:
+2. Deploy TensorFlow from the package and configure the engine to use it:
 
 [source,csharp]
 ----
@@ -92,7 +121,7 @@ GradientEngine.UseEnvironment(pyEnv);
 Prior to the recent changes, the main way to use TensorFlow was to contstruct a computation graph, and then run it in a session. Most of the existing examples will use this mode.
 
 #### Constructing compute graph
-Graph creation methods are located in the `tf` class from `tensorflow` namespace. For example:
+`Graph` creation methods are located in the `tf` class from `tensorflow` namespace. For example:
 
 [source,csharp]
 ----
@@ -133,7 +162,7 @@ using(session.StartUsing()) {
 
 The full code for this example is available at our https://github.com/losttech/Gradient-Samples/tree/master/BasicMath[samples repository]
 
-# Porting Python code to Gradient + C#
+# Porting Python code to LostTech.TensorFlow + C#
 In most cases converting Python code, that uses TensorFlow, should be as easy as using C# syntax instead of Python one:
 
  * add `new` to class constructor calls: `Class()` -> `new Class()`.
@@ -146,52 +175,57 @@ while in class names the first letter is capitalized: `Session` __
  * to get a subrange of a `Tensor` , use <<csharp8>> syntax (if available): `tensor[1..-2]` -> `tensor[1..^3]` (when using C# 8 ranges, note, that the right side in C# is *INCLUSIVE*, while in Python it is *EXCLUSIVE*). A single element can be addressed as usual: `tensor[1]`
 
 ## Names of classes and functions
-Generally, Gradient follows TensorFlow https://www.tensorflow.org/versions/r1.15/api_docs/python/tf[Python API] naming.
+Generally, LostTech.TensorFlow follows TensorFlow https://www.tensorflow.org/versions/r1.15/api_docs/python/tf[Python API] naming.
 There are, though, language-based differences:
 
-* in Python modules (roughly equivalent to namespaces) can directly contain functions. In .NET every function must be a part of some type. For that reason Gradient exposes static classes, named after the innermost module name to contain module functions and properties (but not classes). For example, Python's `tensorflow.contrib.data` module has a correspoding C# class `tensorflow.contrib.data.data`. So an equivalent of Python's `tensorflow.contrib.data.group_by_window` would be `tensorflow.contrib.data.data.group_by_window`. This mostly applies to the unofficial APIs.
+* in Python modules (roughly equivalent to namespaces) can directly contain functions. In .NET every function must be a part of some type. For that reason LostTech.TensorFlow exposes static classes, named after the innermost module name to contain module functions and properties (but not classes). For example, Python's `tensorflow.contrib.data` module has a correspoding C# class `tensorflow.contrib.data.data`. So an equivalent of Python's `tensorflow.contrib.data.group_by_window` would be `tensorflow.contrib.data.data.group_by_window`. This mostly applies to the unofficial APIs.
 * most of the official API's functions and properties (but *not* classes) are exposed via a special class `tensorflow.tf`. Combined with `using tensorflow;` this enables invoking TensorFlow functions as neatly as: `tf.placeholder(...)`, `tf.keras.activations.relu(...)`, etc
 
 __there is also a similar class__ `numpy.np` __for NumPy functions__
 
 * class names and namespaces are mostly the same as in Python API.
-E.g. https://www.tensorflow.org/api_docs/python/tf/Session[`tf.Session`] is in `tensorflow` namespace,
+E.g. https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/Session[`tf.Session`] is in `tensorflow` namespace,
 and can be instantiated via `new tensorflow.Session(...)` or simply `new Session(...)` with `using tensorflow;`
 
 * some APIs have multiple aliases, like https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/add[tf.add].
-At the moment of writing this post, only one of the aliases was exposed by Gradient. Usually the shortest one.
+Only one of the aliases is exposed by LostTech.TensorFlow. Usually the shortest one.
 
 * in case of name conflicts (e.g. C# does not allow both `shape` property and `set_shape` method in the same class),
 one of the conflicting names is exposed with suffix `$$_$$`. For example: `set_shape$$_$$`, which should be easy to find in IDE autocomplete list.
 
-* (very rare) due to the way Gradient works, non-official classes, functions and properties might be exposed via unexpected namespaces.
+* (very rare) due to the way LostTech.TensorFlow works, non-official classes, functions and properties might be exposed via unexpected namespaces.
 IDE should be able to help find classes (by suggesting to add an appropriate `using namespace;`). For functions and properties, one might try to find the class, corresponding to their containing module (see the example with `tensorflow.contrib.data` above, you could search for the `data` class). Another less convenient alternative is to use Visual Studio's Object Explorer.
 
 * (rare) some classes and functions, exposed by TensorFlow might only be exposed as function-typed properties.
 For example, https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/ConfigProto[`ConfigProto`],
-that is used to configure `tf.Session` does not have a correspoing class in Gradient.
-To create an instance of `ConfigProto`, you must call its constructor via `ConfigProto` property in [title="tensorflow.core.protobuf.config_pb2"]`config_pb2` class: `config_pb2.ConfigProto.CreateInstance()` or `config_pb2.ConfigProto()`.
+that is used to configure `tf.Session` does not have a correspoing class in LostTech.TensorFlow.
+To create an instance of `ConfigProto`, you must call its constructor via `ConfigProto` property in [title="tensorflow.core.protobuf.config_pb2"]`config_pb2` class: `config_pb2.ConfigProto.CreateInstance()`.
 
 ## Parameter and return types
-Gradient tries hard to expose statically-typed API, but the underlying TensorFlow code is inherently dynamic.
-In many cases Gradient over-generalizes or under-generalizes underlying parameter and return types.
+LostTech.TensorFlow tries hard to expose statically-typed API, but the underlying TensorFlow code is inherently dynamic.
+In many cases LostTech.TensorFlow over-generalizes or under-generalizes underlying parameter and return types.
 
 When the parameter type is over-generalized, it simply means you loose a hint as to what can actually be passed.
-Gradient's parameter may be `IEnumerable<object>`, but the function can reject anything except a `Set<int>`.
+LostTech.TensorFlow's parameter may be `IEnumerable<object>`, but the function can reject anything except a `PythonSet<int>`.
 In these cases you can either refer to the https://www.tensorflow.org/versions/r1.15/api_docs/python/tf[official documentation],
 or quickly try it, and see if the error you get explains what the function actually expects.
+
+For convenience, any 1D .NET arrays are passed as instances of `PythonList<T>`
+by default. This also applies to enumerables produced by `System.Linq`.
+This behavior can be turned off using `IsEnabled` properties in
+https://gradient.docs.losttech.software/Runtime/v0.4.2/LostTech.Gradient.Codecs/[LostTech.Gradient.Codecs].
 
 ### Dynamic overloads
 TL;DR; when you can't pass something or get `InvalidCastException`, replace `tf.func_name(...)` -> `tf.func_name_dyn(...)`,
 and `new Class(...)` -> `Class.NewDyn(...)`.
 
-When the parameter or return type is under-generalized, you will not be able to use Gradient's statically-typed API.
+When the parameter or return type is under-generalized, you will not be able to use LostTech.TensorFlow's statically-typed API.
 A function parameter may say, that it only accepts `int` and `bool`, but you know from documentation/sample,
-that you have to pass a `Tensor`. Another common example is when Gradient thinks the parameter must be
+that you have to pass a `Tensor`. Another common example is when LostTech.TensorFlow thinks the parameter must be
 of a derived class, when a base class would actually also be ok. For example, parameter `cell` might be of type `LSTMCell`,
 but actually you should be able to pass any `RNNCell`, where `class LSTMCell: RNNCell`.
 Do not try converting the value you want to pass to the expected type. It will not work.
-For these cases Gradient provides dynamic API alongside statically-typed one.
+For these cases LostTech.TensorFlow provides dynamic API alongside statically-typed one.
 
 Every function from original API will have an untyped overload, whose name ends with `_dyn`.
 All its parameters intentionally allow anything to be passed (type `object`).
@@ -206,31 +240,32 @@ Please, report to this issue tracker, if you have to call dynamic overloads a lo
 We will try to fix that in the next version.
 
 In some cases even that is not enough. If you need to call a method or access a property of an instance of some class,
-and that method/property is not exposed by Gradient, convert the instance to `dynamic`, and try to call it that way.
+and that method/property is not exposed by LostTech.TensorFlow, convert the instance to `dynamic`, and try to call it that way.
 See https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/using-type-dynamic
 
 ## Passing functions
-Many TensorFlow (and hence Gradient) APIs accept functions as parameters.
-If the parameter type is known to be a function, Gradient will show it as `Gradient.PythonFunctionContainer`.
+Many TensorFlow APIs accept functions as parameters.
+If the parameter type is known to be a function, LostTech.TensorFlow will show
+it as `PythonFunctionContainer`[https://gradient.docs.losttech.software/Runtime/v0.4.2/LostTech.Gradient/PythonFunctionContainer.htm].
 
-There are two ways to get an instance of it: pass Gradient functions back, or pass .NET function.
+There are two ways to get an instance of it: pass TensorFlow functions back, or pass a .NET function.
 
 ### Passing TensorFlow functions back to TensorFlow
 TL;DR; suffix your function with `_fn`.
 
 Most NN layers expect an `activation` argument, which specifies the neuron activation function.
 TensorFlow defines many activation functions one would want to use in both modern and old-style APIs.
-The "original" one is called https://en.wikipedia.org/wiki/Sigmoid_function[sigmoid] as is availabe as `tf.sigmoid`.
+The "original" one is called https://en.wikipedia.org/wiki/Sigmoid_function[sigmoid] as is available as `tf.sigmoid`.
 Modern networks often use some variant of https://en.wikipedia.org/wiki/Rectifier_(neural_networks)[ReLU] (`tf.nn.relu`).
-You can call both directly from Gradient like this: `tf.sigmoid(tensor)`, but in most cases you need to pass them
+You can call both directly like this: `tf.sigmoid(tensor)`, but in most cases you need to pass them
 to `activation` parameter as `PythonFunctionContainer`.
 
 To do that you can simply get a pre-wrapped instance by adding `_fn` suffix to the function name.
 
 For example: `tf.layer.dense(activation: *tf.sigmoid_fn*)`.
 
-### Passing C# functions to Gradient
-To get an instace of `PythonFunctionContainer` from a C# function, use static method `PythonFunctionContainer.Of<T1, ..., TResult>(func or lambda)`.
+### Passing C# functions to TensorFlow
+To get an instance of `PythonFunctionContainer` from a C# function, use static method `PythonFunctionContainer.Of<T1, ..., TResult>(func or lambda)`.
 You will have to specify function argument types in place of `<T1, ..., TResult>`.
 
 ## Python `with` blocks, C#'s `using`
@@ -248,22 +283,23 @@ You can also use `new Session().UseSelf(sess => sess.DoStuff())`.
 
 TensorFlow API, being built on Python, use special *enter* and *exit* methods for the same purpose
 .NET has `IDisposable`. Problem is: in general they do not map directly to each other.
-For that reason every Gradient class, that declares those special methods in TensorFlow,
+For that reason every LostTech.TensorFlow class, that declares those special methods in TensorFlow,
 also exposes `.Use` and `.UseSelf` methods. In most cases it is easiest to use `.UseSelf(self => do_something(self))`
 as shown in the sample above. However, there might be rare special cases, when `.Use(context => do_something(context))`
 has to be used. The difference is that `obj.UseSelf` always passes `obj` back to the lambda,
 while `obj.Use` might actually generate a new object of potentially completely different type.
 
-Think of `.Use` and `.UseSelf` as Gradient's best attempt at reproducing `using(var session = new Session(...)) {}` statement.
-
-A full example on how to use `.UseSelf` can be found in https://github.com/losttech/Gradient-Samples/blob/master/BasicMath/BasicMathProgram.cs[samples]
-
+Think of `.Use` and `.UseSelf` as LostTech.TensorFlow's best attempt at reproducing `using(var session = new Session(...)) {}` statement.
 
 ## Exceptions
-This feature is still in development.
+Most of TensorFlow exceptions have a counterpart either in LostTech.TensorFlow
+or in Gradient.Runtime[https://gradient.docs.losttech.software/Runtime/v0.4.2/LostTech.Gradient.Exceptions/].
+
+If TensorFlow throws an exception, that has no counterpart, it will surface as
+a generic `PythonException`[https://csharpdoc.hotexamples.com/class/Python.Runtime/PythonException].
 
 ## NumPy
-Since most TensorFlow samples use NumPy, Gradient includes a limited subset under `numpy` namespace.
+Since most TensorFlow samples use NumPy, LostTech.TensorFlow includes a limited subset under `numpy` namespace.
 It is shipped in a separate package: https://www.nuget.org/packages/LostTech.NumPy/[LostTech.NumPy].
 
 [link=https://www.nuget.org/packages/LostTech.NumPy/]
@@ -297,7 +333,7 @@ using static tf.keras;
 var model = models.load_model(...);
 new Dense(kernel_regularizer: regularizers.l2(...));
 ----
-* many Gradient functions return `dynamic`. Whenever possible, immediately cast it to the concrete type.
+* many LostTech.TensorFlow functions return `dynamic`. Whenever possible, immediately cast it to the concrete type.
 It will help to maintain the code. Concrete type is always known at runtime
 and can be seen in the debugger, or accessed via `object.GetType()` method.
 Most methods in `tf.` usually return `Tensor`.
@@ -306,29 +342,33 @@ Most methods in `tf.` usually return `Tensor`.
 Tensor hidden = tf.layers.dense(input, hiddenSize, activation: tf.sigmoid_fn);
 ----
 
-* avoid directly using classes in `Gradient`, `SharPy.Runtime`, and `Python.Runtime`.
-They are Gradient's implementation details, which might be changed in the future versions.
+* avoid directly using classes in `Python.Runtime`.
+They are LostTech.TensorFlow's implementation details, which might be changed
+in the future major versions.
 
-# Limitations of the current tech preview
+# Known limitations
 __This section may be outdated__
 
-### Overriding TensorFlow properties in derived classes
+## Unloading AppDomain is not supported
 
-Calling `base.PropertyName` attempting to override a TensorFlow property
- in a derived class can lead to `StackOverflowException`.
+LostTech.TensorFlow is incompatible with `AppDomain` unloading. An attempt to
+unload an `AppDomain` where TensorFlow was initialized will lead to a crash
+in native code.
+
+This is a known problem with Unity editor, which means you can not use
+LostTech.TensorFlow within the editor. You must skip all TensorFlow code
+using the https://docs.unity3d.com/ScriptReference/Application-isEditor.html[isEditor] check.
 
 # Tips and Tricks
 [#csharp8]
 ## C# 8
-Gradient supports the neat indexing feature of C# 8: if you are using Visual Studio 2019,
+LostTech.TensorFlow supports the neat indexing feature of C# 8: if you are using Visual Studio 2019,
 you can set appropriate language level like this in the project file: `<LangVersion>8.0</LangVersion>`.
-Project must target .NET Core 2.x or .NET Framework. In .NET Core 3.x this feature
-is not available due to a conflict with `System.Range` and `System.Index` classes, that shipped
-in .NET Core 3.x.
 
 Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`, which means "take a range from element at index 3, that includes all elements until (and including) the element with index 4 (counting from the end of the array)".
 
 # Blogs, Blog Posts & 3rd-party Samples
+- https://habr.com/post/453232/[GPT-2: Writing billion songs with C# and Deep Learning]
 - https://habr.com/post/437174/[.NET, TensorFlow, and the windmills of Kaggle — the journey begins]
 - http://ml.blogs.losttech.software/Reinforcement-Learning-With-Unity-ML-Agents/[Reinforcement learning with Unity ML agents]
 - https://lostmsu.github.io/Not-CSharp/[Not C#] - training a convolutional network to recognize programming languages
@@ -336,6 +376,17 @@ Then you can access numpy arrays with the new syntax, for example: `arr[3..^4]`,
 
 
 # What's new
+## Release Candidate:
+- replaced expiration with licenses
+- improved typing on many APIs
+- fixed inability to access static settings
+- strongly-typed wrappers for `Tensor`
+- enhanced `ndarray<T>`
+- improved exception handling and debugging
+- core runtime components include source and debug symbols
+- LINQ enumerables and 1D .NET arrays are now automatically converted to Python
+lists for compatibility with bad TensorFlow APIs (can be disabled)
+
 ## Preview 7:
 - TensorFlow 1.15
 - strongly-typed accessors for `ndarray<T>`
@@ -395,7 +446,7 @@ explained in detail in http://ml.blogs.losttech.software/Reinforcement-Learning-
 # FAQ
 ## Why not TensorFlowSharp?
 |===
-| | TensorFlowSharp | Gradient
+| | TensorFlowSharp | LostTech.TensorFlow
 
 | Load TensorFlow models
 | *✓*
@@ -439,11 +490,32 @@ explained in detail in http://ml.blogs.losttech.software/Reinforcement-Learning-
 |===
 
 ## Why not TensorFlow.NET?
-TensorFlow.NET goal is full reimplementation of TensorFlow in C#.
-However, as of April 2019 only a very small set of APIs actually has
-implementations. Many function and classes are defined without bodies
-and do nothing. The state of specific APIs is not tracked anywhere,
+### Ghost APIs
+TensorFlow.NET goal is to be a reimplementation of TensorFlow in C#.
+However, as of August 2020 only a small set of APIs actually has
+implementations. Many functions and classes are defined without bodies
+and do nothing. The state of specific APIs is not tracked,
 and that can create a lot of confusion. For example, there is an
 [line-through]#https://github.com/SciSharp/TensorFlow.NET/blob/master/src/TensorFlowNET.Core/Train/AdamOptimizer.cs[AdamOptimizer]# (they got AdamOptimizer since, but the problem is https://github.com/SciSharp/TensorFlow.NET/blob/c2138b20abc41b19a5e1d3568cdeed87bc1c7369/src/TensorFlowNET.Core/Train/GradientDescentOptimizer.cs#L38[systemic]) 
 class, but it does not actually have any implementation, apart from
 the constructor, meaning it wont actually use Adam, or work at all.
+
+### Incomplete set of functions
+TensorFlow.NET does not provide full functionality of TensorFlow. As a result,
+https://github.com/SciSharp/TensorFlow.NET/issues/352[it is hard to implement]
+state of the art algorithms for **computer vision (YOLOv3)** and
+**language processing (GPT and BERT)** using TensorFlow.NET, especially from
+scratch.
+
+### Performance
+LostTech.TensorFlow uses official builds of TensorFlow provided by Google, which
+are well-optimized. As a result, in a https://github.com/losttech/Gradient-Perf/[simple comparison]
+(training a CNN) LostTech.TensorFlow is about 18% faster than
+TensorFlow.NET.
+
+We also support TensorFlow builds, that use other accelerators, such as TPUs in
+Google cloud, or https://pypi.org/project/tensorflow-rocm[tensorflow-rocm] for
+AMD GPUs.
+
+# Credits
+TensorFlow, the TensorFlow logo and any related marks are trademarks of Google Inc.
