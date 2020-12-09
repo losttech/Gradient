@@ -20,3 +20,5 @@ You can also explicitly opt-in to share the following information with Lost Tech
 
 This information is used to improve future versions of Lost Tech TensorFlow.
 It is never shared with third parties.
+
+Lost Tech does not collect any other personally identifiable information.
