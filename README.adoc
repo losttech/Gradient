@@ -490,6 +490,16 @@ explained in detail in http://ml.blogs.losttech.software/Reinforcement-Learning-
 |===
 
 ## Why not TensorFlow.NET?
+### Incomplete set of functions
+TensorFlow.NET does not provide full functionality of TensorFlow. As a result,
+https://github.com/SciSharp/TensorFlow.NET/issues/352[it is hard to implement]
+state of the art algorithms for **computer vision (YOLOv3)** and
+**language processing (GPT and BERT)** using TensorFlow.NET, especially from
+scratch. We have complete LostTech.TensorFlow-based samples for both:
+https://github.com/losttech/YOLOv4[YOLOv4] and
+https://github.com/losttech/Gradient-Samples/tree/master/GPT-2[GPT-2]
+and https://github.com/losttech/Gradient-Samples/blob/master/README.md[many more].
+
 ### Ghost APIs
 TensorFlow.NET goal is to be a reimplementation of TensorFlow in C#.
 However, as of August 2020 only a small set of APIs actually has
@@ -499,13 +509,6 @@ and that can create a lot of confusion. For example, there is an
 [line-through]#https://github.com/SciSharp/TensorFlow.NET/blob/master/src/TensorFlowNET.Core/Train/AdamOptimizer.cs[AdamOptimizer]# (they got AdamOptimizer since, but the problem is https://github.com/SciSharp/TensorFlow.NET/blob/c2138b20abc41b19a5e1d3568cdeed87bc1c7369/src/TensorFlowNET.Core/Train/GradientDescentOptimizer.cs#L38[systemic]) 
 class, but it does not actually have any implementation, apart from
 the constructor, meaning it wont actually use Adam, or work at all.
-
-### Incomplete set of functions
-TensorFlow.NET does not provide full functionality of TensorFlow. As a result,
-https://github.com/SciSharp/TensorFlow.NET/issues/352[it is hard to implement]
-state of the art algorithms for **computer vision (YOLOv3)** and
-**language processing (GPT and BERT)** using TensorFlow.NET, especially from
-scratch.
 
 ### Performance
 LostTech.TensorFlow uses official builds of TensorFlow provided by Google, which
