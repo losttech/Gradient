@@ -13,6 +13,8 @@ LostTech.TensorFlow enables .NET developers to use the complete set of TensorFlo
 
 You can find samples at https://github.com/losttech/Gradient-Samples
 
+Full API documentation is available at https://gradient.docs.losttech.software/
+
 [quote, Char-RNN trained on Shakespeare]
 He shall speak not reverbering injurance.
 
